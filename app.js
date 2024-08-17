@@ -1,41 +1,29 @@
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDEDxxRfxEvNEhvTKY4r0R76WZkNeonC-Q",
-    authDomain: "viva-smarts-project.firebaseapp.com",
-    databaseURL: "https://viva-smarts-project-default-rtdb.firebaseio.com",
-    projectId: "viva-smarts-project",
-    storageBucket: "viva-smarts-project.appspot.com",
-    messagingSenderId: "103234362604510264255",
-    appId: "1:103234362604510264255:web:abcdefg1234567"
-};
-
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-
-function login() {
-    const usernameInput = document.getElementById("username").value;
-    const passwordInput = document.getElementById("password").value;
-    const status = document.getElementById("status");
-
-    status.textContent = "Verifying...";
-
-    const userRef = database.ref('Users');
-    
-    userRef.once('value', (snapshot) => {
-        const data = snapshot.val();
-        const savedUsername = data.username;
-        const savedPassword = data.password;
-
-        if (usernameInput === savedUsername && passwordInput === savedPassword) {
-            status.textContent = "Login successful!";
-            setTimeout(() => {
-                window.location.href = "home.html";
-            }, 1000);
-        } else {
-            status.textContent = "Incorrect username or password.";
-        }
-    }).catch((error) => {
-        status.textContent = "Error: " + error.message;
-    });
+// Load the Google Sign-In client library
+function handleCredentialResponse(response) {
+    const userObject = jwt_decode(response.credential);
+    displayUserDetails(userObject);
 }
+
+function displayUserDetails(user) {
+    const accountDetailsDiv = document.getElementById("accountDetails");
+    accountDetailsDiv.innerHTML = `
+        <h2>Welcome, ${user.name}</h2>
+        <p><strong>Email:</strong> ${user.email}</p>
+        <p><strong>Picture:</strong> <img src="${user.picture}" alt="Profile Picture" /></p>
+    `;
+    accountDetailsDiv.style.display = "block";
+}
+
+window.onload = function () {
+    google.accounts.id.initialize({
+        client_id: 'AIzaSyDKothN5kLfBYKs1bCg7dKEnzfPtqomQsA',
+        callback: handleCredentialResponse
+    });
+
+    google.accounts.id.renderButton(
+        document.getElementById("googleSignInBtn"), 
+        { theme: "outline", size: "large" }
+    );
+
+    google.accounts.id.prompt();
+};
